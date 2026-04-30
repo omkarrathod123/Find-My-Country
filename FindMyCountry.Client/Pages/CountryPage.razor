@@ -1,0 +1,53 @@
+﻿@page "/country"
+@using FindMyCountry.shared
+@inject HttpClient httpClient
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender:false))
+
+<div class="row mt-4">
+    <div class="col-6">
+        <h4 class="card-title text-primary">Country List</h4>
+    </div>
+    <div class="col-4 offset-2">
+        <a href="countryedit" class="btn btn-info form-control">Add New Country</a>
+    </div>
+</div>
+@if(countries == null)
+{
+    <div class="text-center">
+        <img src="images/loading.gif"/>
+    </div>
+}
+else if(countries.Count == 0)
+{
+    <div>
+        Country Database is empty
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Country</th>
+                <th>Country Code</th>
+                <th>action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in countries)
+            {
+                <tr>
+                    <td>
+                        @item.countryName
+                    </td>
+                    <td>
+                        @item.countryCode
+                    </td>
+                    <td>
+                        <a href="/countryedit/@item.CId">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

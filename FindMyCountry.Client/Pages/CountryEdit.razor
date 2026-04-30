@@ -1,0 +1,40 @@
+﻿@page "/countryedit"
+@page "/countryedit/{id:int}"
+@using FindMyCountry.shared
+@inject HttpClient Http
+@inject NavigationManager navigationManager
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender:false))
+
+<div class="card m-3">
+    <h4 class="card-header">Country Update Form</h4>
+    <div class="card-body">
+        <EditForm Model="@country" OnValidSubmit="@HandleValidSubmit" @onreset="@HandleReset">
+            <DataAnnotationsValidator />
+            <div class="form-row">
+                <div class="form-group col-5">
+                    <label>Country Name</label>
+                    <InputText @bind-Value="country.countryName" class="form-control" />
+                    <ValidationMessage For="@(()=>country.countryName)" />
+                </div>
+                <div class="form-group col-5">
+                    <label>Country Code</label>
+                    <InputNumber @bind-Value="country.countryCode" class="for-control" />
+                    <ValidationMessage For="@(() => country.countryCode)" />
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary" style="margin:2px;">Save</button>
+                    @if(id != 0){
+                        <button class="btn btn-danger" title="Delete task" style="margin:2px;" @onclick="@DeleteCountry">
+                            <i class="bi bi-fire"></i>
+                            Delete
+                        </button>
+                    }
+                    <button type="reset" class="btn btn-secondary" style="margin:2px;">Cancel</button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+<div>@error</div>
