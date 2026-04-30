@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="FindMyCountry.Client/FindMyCountry.Client.csproj" />
+  <Project Path="FindMyCountry.shared/FindMyCountry.shared.csproj" />
+  <Project Path="FindMyCountry/FindMyCountry.csproj" />
+</Solution>
