@@ -25,14 +25,14 @@ namespace FindMyCountry.Controller
         [HttpGet]
         public async Task<ActionResult<IEnumerable<City>>> GetCity()
         {
-            return await _context.City.ToListAsync();
+            return await _context.City.Include(u=>u.country).ToListAsync();
         }
 
         // GET: api/Cities/5
         [HttpGet("{id}")]
         public async Task<ActionResult<City>> GetCity(int id)
         {
-            var city = await _context.City.FindAsync(id);
+            var city = await _context.City.Include(u=>u.country).FirstOrDefaultAsync(u=>u.Id == id);
 
             if (city == null)
             {
