@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    tools {
+        dotnet 'dotnet8'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'master', url: 'https://github.com/omkarrathod123/Find-My-Country.git'
+            }
+        }
+
+        stage('Restore') {
+            steps {
+                sh 'dotnet restore TestMenu.slnx'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'dotnet build TestMenu.slnx --configuration Release'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // Only if you have a test project in the solution
+                sh 'dotnet test TestMenu.slnx --configuration Release --no-build'
+            }
+        }
+
+        stage('Publish') {
+            steps {
+                // Publishing the server project bundles the client output
+                sh 'dotnet publish TestMenu/TestMenu.csproj -c Release -o ./publish'
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'publish/**', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Blazor WebAssembly hosted app build and publish succeeded!'
+        }
+        failure {
+            echo 'Build failed.'
+        }
+    }
+}
