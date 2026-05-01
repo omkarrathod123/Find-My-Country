@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="server.jenkinsfile" />
+  </Folder>
   <Project Path="FindMyCountry.Client/FindMyCountry.Client.csproj" />
   <Project Path="FindMyCountry.shared/FindMyCountry.shared.csproj" />
   <Project Path="FindMyCountry/FindMyCountry.csproj" />
