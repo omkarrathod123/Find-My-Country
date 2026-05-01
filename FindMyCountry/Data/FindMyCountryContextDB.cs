@@ -15,5 +15,6 @@ namespace FindMyCountry.Data
         }
 
         public DbSet<FindMyCountry.shared.Country> Country { get; set; } = default!;
+        public DbSet<FindMyCountry.shared.City> City { get; set; } = default!;
     }
 }
