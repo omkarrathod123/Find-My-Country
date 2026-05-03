@@ -1,56 +1,50 @@
 pipeline {
     agent any
 
-    tools {
-        dotnet 'dotnet8'
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/omkarrathod123/Find-My-Country.git'
-            }
-        }
-
-        stage('Restore') {
-            steps {
-                sh 'dotnet restore TestMenu.slnx'
+                git 'https://github.com/omkarrathod123/Find-My-Country.git'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'dotnet build TestMenu.slnx --configuration Release'
+                sh 'dotnet build -c Release'
             }
         }
 
         stage('Test') {
             steps {
-                // Only if you have a test project in the solution
-                sh 'dotnet test TestMenu.slnx --configuration Release --no-build'
+                sh 'dotnet test'
             }
         }
 
-        stage('Publish') {
+        stage('Docker Build') {
             steps {
-                // Publishing the server project bundles the client output
-                sh 'dotnet publish TestMenu/TestMenu.csproj -c Release -o ./publish'
+                sh 'docker build -t omkarrathod123/findmycontry:latest .'
             }
         }
 
-        stage('Archive Artifacts') {
+        stage('Push to Docker Hub') {
             steps {
-                archiveArtifacts artifacts: 'publish/**', fingerprint: true
+                withCredentials([usernamePassword(credentialsId: 'omkarrathod123', usernameVariable: 'omkarrathod123', passwordVariable: '0mK4r@2000')]) {
+                    sh 'echo $PASS | docker login -u $USER --password-stdin'
+                    sh 'docker push omkarrathod123/blazorapp:latest'
+                }
             }
         }
-    }
 
-    post {
-        success {
-            echo 'Blazor WebAssembly hosted app build and publish succeeded!'
-        }
-        failure {
-            echo 'Build failed.'
+        stage('Upload to S3') {
+            steps {
+                withAWS(region: 'ap-south-1', credentials: 'aws-creds') {
+                    // 👇 Upload build output (adjust path as needed)
+                    s3Upload(bucket: 'my-build-artifacts-bucket',
+                             path: 'builds/${env.BUILD_NUMBER}/',
+                             workingDir: 'bin/Release/net8.0/',
+                             includePathPattern: '**/*')
+                }
+            }
         }
     }
 }
