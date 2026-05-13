@@ -1,50 +1,63 @@
 pipeline {
     agent any
 
+    environment {
+        REGISTRY = "omkarrathod123"
+        IMAGE_NAME = "findmycontry"
+        DB_CONN = "Server=(localdb)\\mssqllocaldb;Database=FindMyCountryDB;Trusted_Connection=True;MultipleActiveResultSets=true"
+        SOLUTION = "FindMyCountry.slnx"
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/omkarrathod123/Find-My-Country.git'
+                git branch: 'master',
+                    url: 'https://github.com/omkarrathod123/Find-My-Country.git'
+            }
+        }
+    }
+        stage('Restore') {
+            steps {
+                script {
+                    sh "msbuild $SOLUTION /t:Restore"
+                }
             }
         }
 
         stage('Build') {
             steps {
-                sh 'dotnet build -c Release'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'dotnet test'
+                script {
+                    sh "msbuild $SOLUTION /p:Configuration=Release"
+                }
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t omkarrathod123/findmycontry:latest .'
-            }
-        }
-
-        stage('Push to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'omkarrathod123', usernameVariable: 'omkarrathod123', passwordVariable: '0mK4r@2000')]) {
-                    sh 'echo $PASS | docker login -u $USER --password-stdin'
-                    sh 'docker push omkarrathod123/blazorapp:latest'
+                script {
+                    sh """
+                        docker build \
+                          --build-arg DB_CONN="$DB_CONN" \
+                          -t $REGISTRY/$IMAGE_NAME:\$BUILD_NUMBER .
+                    """
                 }
             }
         }
 
-        stage('Upload to S3') {
+        stage('Push Image') {
             steps {
-                withAWS(region: 'ap-south-1', credentials: 'aws-creds') {
-                    // 👇 Upload build output (adjust path as needed)
-                    s3Upload(bucket: 'my-build-artifacts-bucket',
-                             path: 'builds/${env.BUILD_NUMBER}/',
-                             workingDir: 'bin/Release/net8.0/',
-                             includePathPattern: '**/*')
+                script {
+                    sh """
+                        docker push $REGISTRY/$IMAGE_NAME:\$BUILD_NUMBER
+                    """
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
         }
     }
 }
