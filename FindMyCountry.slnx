@@ -1,6 +1,10 @@
 <Solution>
   <Folder Name="/Solution Items/">
-    <File Path="server.jenkinsfile" />
+    <File Path="Client.Dockerfile" />
+    <File Path="docker-compose.yml" />
+    <File Path="main.jenkinsfile" />
+    <File Path="server.Dockerfile" />
+    <File Path="Shared.Dockerfile" />
   </Folder>
   <Project Path="FindMyCountry.Client/FindMyCountry.Client.csproj" />
   <Project Path="FindMyCountry.shared/FindMyCountry.shared.csproj" />
